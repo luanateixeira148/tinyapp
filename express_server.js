@@ -13,6 +13,7 @@ const urlDatabase = {
   "olm076": "http://www.something.com"
 };
 
+//generates random string to be used as the shortURL
 const generateRandomString = function(){
   return Math.random().toString(20).substr(2, 6)
 }
