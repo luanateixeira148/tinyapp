@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const cookieParser = require('cookie-parser')
+
 
 app.set("view engine", "ejs");
 
@@ -31,7 +33,10 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    urls: urlDatabase, 
+    username: req.cookies["username"] 
+  };
   res.render("urls_index", templateVars);
 });
 
@@ -78,7 +83,15 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect('/urls');
 })
 
-/////
+// Login POST
+app.post('/login', (req, res) => {
+  const newUser = req.body.username;
+  console.log(newUser);
+
+  res.cookie('username', newUser);
+
+  res.redirect('/urls');
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
