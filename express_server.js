@@ -10,7 +10,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
-  "olm076" : "http://www.something.com"
+  "olm076": "http://www.something.com"
 };
 
 const generateRandomString = function(){
@@ -57,6 +57,14 @@ app.get("/u/:shortURL", (req, res) => {
   console.log(tempLongURL);
   res.redirect(tempLongURL);
 });
+
+// Delete - POST /urls/:shortURL/delete
+app.post('/urls/:shortURL/delete', (req, res) => {
+  const deleteShortURL = req.params.shortURL;
+  delete urlDatabase[deleteShortURL];
+
+  res.redirect('/urls');
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
