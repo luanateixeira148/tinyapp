@@ -15,7 +15,20 @@ const urlDatabase = {
   "ozv250": "http://www.something.com"
 };
 
-// //generates random string to be used as the shortURL
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
+
+// //generates random string to be used as the shortURL and as the user's ID
 const generateRandomString = function(){
   return Math.random().toString(20).substr(2, 6)
 }
@@ -49,7 +62,6 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase, 
     username: req.cookies.username 
   };
-  
   res.render("urls_index", templateVars);
 });
 
@@ -118,6 +130,31 @@ app.post('/logout', (req, res) => {
   res.clearCookie('username');
   res.redirect('/urls');
 });
+
+// renders the register page
+app.get('/register', (req, res) => {
+  const templateVars = { username: req.cookies.username };
+  res.render('register', templateVars);
+});
+
+// handles the registration form data
+app.post('/register', (req, res) => {
+  const newUserID = generateRandomString();
+  const newUserEmail = req.body.email;
+  const newUserPassword = req.body.password;
+
+  users[newUserID] = {
+    id: newUserID,
+    email: newUserEmail,
+    password: newUserPassword
+  }
+
+  console.log(users);
+  
+  res.cookie('user_id', newUserID);
+  res.redirect('/urls');
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
