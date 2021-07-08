@@ -17,9 +17,10 @@
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       </div>
     <div class="card-footer text-muted">
+      <h5>Edit:</h5>
       <form action="/urls/<%= shortURL %>" method="POST">
         <label>New URL:</label>
-        <input name="<%= shortURL %>" value="<%= longURL %>" />
+        <input type="text" name="<%= shortURL %>" value="<%= longURL %>" />
         <button type="submit" class="btn btn-primary btn-sm">Save</button>
       </form>
     </div>
