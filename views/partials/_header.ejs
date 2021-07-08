@@ -1,5 +1,5 @@
 <header>
-  <nav class="navbar navbar-expand-md navbar-dark bg-success">
+  <nav class="navbar navbar-expand-md navbar-dark" style="background-color: #09c0b7">
     <a class="navbar-brand" href="/urls">TinyApp</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -11,10 +11,15 @@
       </div>
     </div>
     <div class="justify-content-end">
-      <form class="d-flex" action="/login" method="POST">
-        <input class="form-control me-2" placeholder="Username" name="username" />
-        <button class="btn btn-outline-light" type="submit" style="margin-left: 1em;">Login</button>
-      </form>
+      <% if(username) {%>
+        <h5>Welcome <%= username %> !</h5>
+      <% } else { %>
+        <form class="d-flex" action="/login" method="POST">
+          <input class="form-control me-2" placeholder="Username" name="username" />
+          <button class="btn btn-outline-light" type="submit" style="margin-left: 1em;">Login</button>
+        </form>
+      <% } %>
+    
     </div>
   </nav>
 </header>
