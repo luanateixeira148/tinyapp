@@ -11,9 +11,9 @@
       </div>
     </div>
     <div class="justify-content-end">
-      <% if (username) { %>
+      <% if (user) { %>
         <form action="/logout" method="POST" class="d-flex">
-          <h5>Hello <%= username %></h5>
+          <h5>Logged in as <%= user.email %></h5>
           <button type="submit" class="btn btn-outline-light" style="margin-left: 1em;">
             Logout
           </button>

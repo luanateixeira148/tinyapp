@@ -47,40 +47,58 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// Passing data to the template
 // app.get("/urls", (req, res) => {
-//   const cookieUsername = req.cookies.username;
-//   const templateVars = { urls: urlDatabase, username: cookieUsername };
-  
-//   console.log(templateVars);
-  
+//   const username = req.cookies.username;
+
+//   const templateVars = { 
+//     urls: urlDatabase, 
+//     username: req.cookies.username
+//   };
+
 //   res.render("urls_index", templateVars);
 // });
 
 // Passing data to the template
 app.get("/urls", (req, res) => {
+  const username = req.cookies.username;
+  const userId = req.cookies.user_id;
+  const userObj = users[userId];
+
   const templateVars = { 
     urls: urlDatabase, 
-    username: req.cookies.username 
+    username: req.cookies.username,
+    user: userObj
   };
+
+  console.log('user:',userObj);
   res.render("urls_index", templateVars);
 });
 
 // Render the page with the new URL form
 app.get("/urls/new", (req, res) => {
+  const userId = req.cookies.user_id;
+  const userObj = users[userId];
+
   const templateVars = { 
-    username: req.cookies.username 
+    username: req.cookies.username,
+    user: userObj 
   };
-  
+
   res.render("urls_new", templateVars);
 });
 
 // Render the individual URL page
 app.get("/urls/:shortURL", (req, res) => {
   const tempShortURL = req.params.shortURL;
+  const userId = req.cookies.user_id;
+  const userObj = users[userId];
+
   const templateVars = { 
     shortURL: tempShortURL, 
     longURL: urlDatabase[tempShortURL], 
-    username: req.cookies.username 
+    username: req.cookies.username,
+    user: userObj
   };
   res.render("urls_show", templateVars);
 });
@@ -133,7 +151,14 @@ app.post('/logout', (req, res) => {
 
 // renders the register page
 app.get('/register', (req, res) => {
-  const templateVars = { username: req.cookies.username };
+  const userId = req.cookies.user_id;
+  const userObj = users[userId];
+
+  const templateVars = { 
+    username: req.cookies.username, 
+    user: userObj 
+  };
+
   res.render('register', templateVars);
 });
 
@@ -148,8 +173,6 @@ app.post('/register', (req, res) => {
     email: newUserEmail,
     password: newUserPassword
   }
-
-  console.log(users);
   
   res.cookie('user_id', newUserID);
   res.redirect('/urls');
