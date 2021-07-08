@@ -34,7 +34,6 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// Passing URL data to the template
 // app.get("/urls", (req, res) => {
 //   const cookieUsername = req.cookies.username;
 //   const templateVars = { urls: urlDatabase, username: cookieUsername };
@@ -44,6 +43,7 @@ app.get("/urls.json", (req, res) => {
 //   res.render("urls_index", templateVars);
 // });
 
+// Passing data to the template
 app.get("/urls", (req, res) => {
   const templateVars = { 
     urls: urlDatabase, 
@@ -55,13 +55,21 @@ app.get("/urls", (req, res) => {
 
 // Render the page with the new URL form
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { 
+    username: req.cookies.username 
+  };
+  
+  res.render("urls_new", templateVars);
 });
 
 // Render the individual URL page
 app.get("/urls/:shortURL", (req, res) => {
   const tempShortURL = req.params.shortURL;
-  const templateVars = { shortURL: tempShortURL, longURL: urlDatabase[tempShortURL] };
+  const templateVars = { 
+    shortURL: tempShortURL, 
+    longURL: urlDatabase[tempShortURL], 
+    username: req.cookies.username 
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -99,10 +107,16 @@ app.post('/urls/:shortURL', (req, res) => {
 
 // accepts the login form
 app.post('/login', (req, res) => {
-const username = req.body.username;
-res.cookie('username', username);
+  const username = req.body.username;
+  res.cookie('username', username);
 
-res.redirect('/urls');
+  res.redirect('/urls');
+});
+
+// accepts the logout request
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {

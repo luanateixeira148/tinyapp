@@ -11,10 +11,21 @@
       </div>
     </div>
     <div class="justify-content-end">
+      <% if (username) { %>
+        <form action="/logout" method="POST" class="d-flex">
+          <h5>Hello <%= username %></h5>
+          <button type="submit" class="btn btn-outline-light" style="margin-left: 1em;">
+            Logout
+          </button>
+        </form>
+      <% } else { %>
       <form action="/login" method="POST" class="d-flex">
         <input  name="username" class="form-control me-2" placeholder="Username" />
-        <button  type="submit" class="btn btn-outline-light" style="margin-left: 1em;">Login</button>
+        <button  type="submit" class="btn btn-outline-light" style="margin-left: 1em;">
+          Login
+        </button>
       </form>
+      <% }%>
     </div>
   </nav>
 </header>
