@@ -28,10 +28,24 @@ const users = {
   }
 };
 
-// //generates random string to be used as the shortURL and as the user's ID
+// generates random string to be used as the shortURL and as the user's ID
 const generateRandomString = function(){
   return Math.random().toString(20).substr(2, 6)
 }
+
+// function to check if user is already registered
+const checkExistentEmail = function(inputEmail) {
+  let output;
+  for (let user in users) {
+    console.log('user:', user, 'user.email:', users[user].email);
+    if (users[user].email === inputEmail) {
+      output = true;
+    } else {
+      output = false;
+    }
+  }
+  return output;
+};
 
 // Just for demo purpose? - Handler to the root path
 app.get("/", (req, res) => {
@@ -145,7 +159,7 @@ app.post('/login', (req, res) => {
 
 // accepts the logout request
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
@@ -168,14 +182,23 @@ app.post('/register', (req, res) => {
   const newUserEmail = req.body.email;
   const newUserPassword = req.body.password;
 
-  users[newUserID] = {
-    id: newUserID,
-    email: newUserEmail,
-    password: newUserPassword
+  if (newUserEmail === '' || newUserPassword === '') {
+    res.status(400);
+    res.send('You need to define your email and password');
+  } else if (checkExistentEmail(newUserEmail)) {
+    res.status(400);
+    res.send('You are already registered');
+  } else {
+    users[newUserID] = {
+      id: newUserID,
+      email: newUserEmail,
+      password: newUserPassword
+    };
+    
+    res.cookie('user_id', newUserID);
+    res.redirect('/urls');
+    console.log('pass info:', users);
   }
-  
-  res.cookie('user_id', newUserID);
-  res.redirect('/urls');
 });
 
 
