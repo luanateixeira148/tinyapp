@@ -71,7 +71,8 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// Passing data to the index
+
+/* GET /urls --- renders the index */
 app.get("/urls", (req, res) => {
   const userId = req.cookies.user_id;
   const userObj = users[userId];
@@ -84,7 +85,21 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// Render the page with the new URL form
+
+/* POST /urls --- handles new URL form submission */
+app.post("/urls", (req, res) => {
+  const newShortUrl = generateRandomString();
+  const newLongUrl = req.body.longURL;
+
+  urlDatabase[newShortUrl] = newLongUrl;
+
+  res.redirect(`/urls/${newShortUrl}`);
+});
+
+
+/* GET /urls/new --- renders the new URL page */
+/* IMPORTANT --- 
+--- this function needs to ALWAYS be placed before the /urls/:shortURL */
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies.user_id;
   const userObj = users[userId];
@@ -96,7 +111,8 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// Render the individual URL page
+
+/* GET /urls/:shortURL --- renders individual URL pages */
 app.get("/urls/:shortURL", (req, res) => {
   const tempShortURL = req.params.shortURL;
   const userId = req.cookies.user_id;
@@ -110,31 +126,8 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// handles the new URL form submission
-app.post("/urls", (req, res) => {
-  const newShortUrl = generateRandomString();
-  const newLongUrl = req.body.longURL;
 
-  urlDatabase[newShortUrl] = newLongUrl;
-
-  res.redirect(`/urls/${newShortUrl}`);
-});
-
-// redirect users to the long url if they click the short url
-app.get("/u/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
-  res.redirect(longURL);
-});
-
-// deletes a url from the urls_index page
-app.post("/urls/:shortURL/delete", (req, res) => {
-  const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
-  res.redirect('/urls');
-});
-
-// Edit the long url
+/* POST /urls/:shortURL --- edits URL form */
 app.post('/urls/:shortURL', (req, res) => {
   const id = req.params.shortURL;
   const body = req.body[id];
@@ -142,7 +135,26 @@ app.post('/urls/:shortURL', (req, res) => {
   res.redirect('/urls');
 });
 
-// renders the login page
+
+/* GET /u/:shortURL --- redirects users to the long URL from the short URL */
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL];
+  res.redirect(longURL);
+});
+
+
+/* POST /urls/:shortURL/delete --- handles delete URL button from the index page */
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
+  res.redirect('/urls');
+});
+
+
+/***** LOGIN *****/
+
+/* GET /login --- renders the login page */
 app.get('/login', (req, res) => {
   const userId = req.cookies.user_id;
   const userObj = users[userId];
@@ -154,7 +166,7 @@ app.get('/login', (req, res) => {
   res.render('login', templateVars);
 });
 
-// accepts the login form
+/* POST /login --- handles the login form */
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -176,13 +188,19 @@ app.post('/login', (req, res) => {
   }
 });
 
-// accepts the logout request
+
+/***** LOGOUT *****/
+
+/* POST /logout --- handles the logout request */
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
-// renders the register page
+
+/***** REGISTRATION *****/
+
+/* GET /register --- renders register page */
 app.get('/register', (req, res) => {
   const userId = req.cookies.user_id;
   const userObj = users[userId];
@@ -194,7 +212,8 @@ app.get('/register', (req, res) => {
   res.render('register', templateVars);
 });
 
-// handles the registration form data
+
+/* POST /register --- handles registration form */
 app.post('/register', (req, res) => {
   const newUserID = generateRandomString();
   const newUserEmail = req.body.email;
@@ -220,7 +239,9 @@ app.post('/register', (req, res) => {
 });
 
 
+
+/*************/
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
