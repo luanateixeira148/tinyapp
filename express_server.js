@@ -179,10 +179,15 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post('/urls/:shortURL', (req, res) => {
   const id = req.params.shortURL;
   const body = req.body[id];
-  urlDatabase[id] = body;
-  res.redirect('/urls');
+  const userId = req.cookies.user_id;
+  const urlsOfUser = urlsForUser(userId);
 
-  
+  if (urlsOfUser.hasOwnProperty(id)) {
+    urlDatabase[id] = body;
+    res.redirect('/urls');
+  } else {
+    res.send('You do not have permission to edit this content');
+  }
 });
 
 
