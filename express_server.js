@@ -18,11 +18,19 @@ app.use(cookieParser());
 const urlDatabase = {
   b6UTxQ: {
       longURL: "https://www.tsn.ca",
-      userID: "aJ48lW"
+      userID: "user2RandomID"
   },
   i3BoGr: {
       longURL: "https://www.google.ca",
-      userID: "aJ48lW"
+      userID: "userRandomID"
+  },
+  i36oPS: {
+    longURL: "https://www.something.com",
+    userID: "userRandomID"
+  },
+  a367PG: {
+    longURL: "https://www.somethingelse.com",
+    userID: "user2RandomID"
   }
 };
 
@@ -68,6 +76,17 @@ const getUserByEmail = function(inputEmail) {
   return null;
 };
 
+// function - returns the URLs where the userID is equal to the id of the input id user.
+const urlsForUser = function(id) {
+  const output = {};
+  for (let item in urlDatabase) {
+    if (urlDatabase[item].userID === id) {
+      output[item] = urlDatabase[item].longURL;
+    }
+  }
+  return output;
+}
+
 // Just for demo purpose? - Handler to the root path
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -87,9 +106,11 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const userId = req.cookies.user_id;
   const userObj = users[userId];
+  const urlsOfUser = urlsForUser(userId);
 
   const templateVars = { 
-    urls: urlDatabase, 
+    user_id: userId,
+    urls: urlsOfUser, 
     user: userObj
   };
 
@@ -136,6 +157,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const tempShortURL = req.params.shortURL;
   const userId = req.cookies.user_id;
   const userObj = users[userId];
+  const urlsOfUser = urlsForUser(userId);
 
   const templateVars = { 
     shortURL: tempShortURL, 
@@ -143,7 +165,13 @@ app.get("/urls/:shortURL", (req, res) => {
     user: userObj
   };
 
-  res.render("urls_show", templateVars);
+  // checks if the short url is onwed by the user
+  if (urlsOfUser.hasOwnProperty(tempShortURL)) {
+    res.render("urls_show", templateVars);
+  } else {
+    res.send('You do not have permission to access this page');
+  }
+
 });
 
 
@@ -153,6 +181,8 @@ app.post('/urls/:shortURL', (req, res) => {
   const body = req.body[id];
   urlDatabase[id] = body;
   res.redirect('/urls');
+
+  
 });
 
 
@@ -168,8 +198,17 @@ app.get("/u/:shortURL", (req, res) => {
 /* POST /urls/:shortURL/delete --- handles delete URL button from the index page */
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
-  res.redirect('/urls');
+  const userId = req.cookies.user_id;
+  const urlsOfUser = urlsForUser(userId);
+
+    // checks if the short url is onwed by the user
+    if (urlsOfUser.hasOwnProperty(shortURL)) {
+      delete urlDatabase[shortURL];
+      res.redirect('/urls');
+    } else {
+      res.send('You do not have permission to delete this content');
+    }
+
 });
 
 
