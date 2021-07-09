@@ -9,10 +9,21 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com",
+//   "ozv250": "http://www.something.com"
+// };
+
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-  "ozv250": "http://www.something.com"
+  b6UTxQ: {
+      longURL: "https://www.tsn.ca",
+      userID: "aJ48lW"
+  },
+  i3BoGr: {
+      longURL: "https://www.google.ca",
+      userID: "aJ48lW"
+  }
 };
 
 const users = { 
@@ -81,17 +92,21 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase, 
     user: userObj
   };
-  
+
   res.render("urls_index", templateVars);
 });
 
 
 /* POST /urls --- handles new URL form submission */
 app.post("/urls", (req, res) => {
+  const userId = req.cookies.user_id;
   const newShortUrl = generateRandomString();
   const newLongUrl = req.body.longURL;
 
-  urlDatabase[newShortUrl] = newLongUrl;
+  urlDatabase[newShortUrl] = {
+    longURL: newLongUrl,
+    userID: userId
+  };
 
   res.redirect(`/urls/${newShortUrl}`);
 });
@@ -108,7 +123,11 @@ app.get("/urls/new", (req, res) => {
     user: userObj 
   };
 
-  res.render("urls_new", templateVars);
+  if (userId) {
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect('/urls');
+  }
 });
 
 
@@ -120,9 +139,10 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const templateVars = { 
     shortURL: tempShortURL, 
-    longURL: urlDatabase[tempShortURL], 
+    longURL: urlDatabase[tempShortURL].longURL, 
     user: userObj
   };
+
   res.render("urls_show", templateVars);
 });
 
@@ -139,7 +159,8 @@ app.post('/urls/:shortURL', (req, res) => {
 /* GET /u/:shortURL --- redirects users to the long URL from the short URL */
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
+  console.log(shortURL);
   res.redirect(longURL);
 });
 
@@ -239,8 +260,8 @@ app.post('/register', (req, res) => {
 });
 
 
-
 /*************/
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
