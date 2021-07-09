@@ -47,6 +47,16 @@ const checkExistentEmail = function(inputEmail) {
   return output;
 };
 
+// function to get user by email
+const getUserByEmail = function(inputEmail) {
+  for (user in users) {
+    if (users[user].email === inputEmail) {
+      return user;
+    }
+  }
+  return null;
+};
+
 // Just for demo purpose? - Handler to the root path
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -61,31 +71,16 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// Passing data to the template
-// app.get("/urls", (req, res) => {
-//   const username = req.cookies.username;
-
-//   const templateVars = { 
-//     urls: urlDatabase, 
-//     username: req.cookies.username
-//   };
-
-//   res.render("urls_index", templateVars);
-// });
-
 // Passing data to the index
 app.get("/urls", (req, res) => {
-  const username = req.cookies.username;
   const userId = req.cookies.user_id;
   const userObj = users[userId];
 
   const templateVars = { 
     urls: urlDatabase, 
-    username: req.cookies.username,
     user: userObj
   };
-
-  console.log('user:',userObj);
+  
   res.render("urls_index", templateVars);
 });
 
@@ -95,7 +90,6 @@ app.get("/urls/new", (req, res) => {
   const userObj = users[userId];
 
   const templateVars = { 
-    username: req.cookies.username,
     user: userObj 
   };
 
@@ -111,7 +105,6 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { 
     shortURL: tempShortURL, 
     longURL: urlDatabase[tempShortURL], 
-    username: req.cookies.username,
     user: userObj
   };
   res.render("urls_show", templateVars);
@@ -154,8 +147,7 @@ app.get('/login', (req, res) => {
   const userId = req.cookies.user_id;
   const userObj = users[userId];
 
-  const templateVars = { 
-    username: req.cookies.username, 
+  const templateVars = {  
     user: userObj 
   };
 
@@ -164,10 +156,24 @@ app.get('/login', (req, res) => {
 
 // accepts the login form
 app.post('/login', (req, res) => {
-  const username = req.body.username;
-  res.cookie('username', username);
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = getUserByEmail(email);
 
-  res.redirect('/urls');
+  //check if there a user with the email
+  if (user) {
+    // check if password match
+    if (users[user].password === password) {
+      res.cookie('user_id', user);
+      res.redirect('/urls');
+    } else {
+      res.status(403);
+      res.send('incorrect password');
+    }
+  } else {
+    res.status(403);
+    res.send('user not found');
+  }
 });
 
 // accepts the logout request
@@ -182,7 +188,6 @@ app.get('/register', (req, res) => {
   const userObj = users[userId];
 
   const templateVars = { 
-    username: req.cookies.username, 
     user: userObj 
   };
 
