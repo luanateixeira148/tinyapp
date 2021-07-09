@@ -73,7 +73,7 @@ app.get("/urls.json", (req, res) => {
 //   res.render("urls_index", templateVars);
 // });
 
-// Passing data to the template
+// Passing data to the index
 app.get("/urls", (req, res) => {
   const username = req.cookies.username;
   const userId = req.cookies.user_id;
@@ -147,7 +147,20 @@ app.post('/urls/:shortURL', (req, res) => {
   const body = req.body[id];
   urlDatabase[id] = body;
   res.redirect('/urls');
-})
+});
+
+// renders the login page
+app.get('/login', (req, res) => {
+  const userId = req.cookies.user_id;
+  const userObj = users[userId];
+
+  const templateVars = { 
+    username: req.cookies.username, 
+    user: userObj 
+  };
+
+  res.render('login', templateVars);
+});
 
 // accepts the login form
 app.post('/login', (req, res) => {
