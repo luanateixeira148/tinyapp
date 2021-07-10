@@ -10,27 +10,10 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <!-- <div class="justify-content-end">
-      <% if (user) { %>
-        <form action="/logout" method="POST" class="d-flex">
-          <h5>Logged in as <%= user.email %></h5>
-          <button type="submit" class="btn btn-outline-light" style="margin-left: 1em;">
-            Logout
-          </button>
-        </form>
-      <% } else { %>
-      <form action="/login" method="POST" class="d-flex">
-        <input  name="username" class="form-control me-2" placeholder="Username" />
-        <button  type="submit" class="btn btn-outline-light" style="margin-left: 1em;">
-          Login
-        </button>
-      </form>
-      <% }%>
-    </div> -->
     <div class="justify-content-end">
       <% if (user) { %>
         <form action="/logout" method="POST" class="d-flex">
-          <h5>Logged in as <%= user.email %></h5>
+          <h5 style="color: white; margin-left: 1em; align-self: center; font-size: 16px; ">Logged in as: <b><%= user.email %></b></h6>
           <button type="submit" class="btn btn-outline-light" style="margin-left: 1em;">
             Logout
           </button>
@@ -40,7 +23,7 @@
           <a href="/login" style="color: white; margin-left: 1em">Login</a>
           <a href="/register" style="color: white; margin-left: 1em">Register</a>
         </div>
-      <% }%>
+      <% } %>
     </div>
   </nav>
 </header>

@@ -15,12 +15,7 @@ app.use(cookieSession({
   keys: ['no significance', 'key2', 'more stuff']
 }))
 
-
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com",
-//   "ozv250": "http://www.something.com"
-// };
+const { getUserByEmail } = require('./helpers');
 
 const urlDatabase = {
   b6UTxQ: {
@@ -73,16 +68,6 @@ const checkExistentEmail = function(inputEmail) {
   return output;
 };
 
-// function to get user by email
-const getUserByEmail = function(inputEmail, database) {
-  for (user in database) {
-    if (users[user].email === inputEmail) {
-      return user;
-    }
-  }
-  return null;
-};
-
 // function - returns the URLs where the userID is equal to the id of the input id user.
 const urlsForUser = function(id) {
   const output = {};
@@ -94,14 +79,13 @@ const urlsForUser = function(id) {
   return output;
 }
 
-// Just for demo purpose? - Handler to the root path
 app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-// Just for demo purpose? - Handler to hello page
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+  const userId = req.session.user_id;
+  if (userId) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.get("/urls.json", (req, res) => {
@@ -154,7 +138,7 @@ app.get("/urls/new", (req, res) => {
   if (userId) {
     res.render("urls_new", templateVars);
   } else {
-    res.redirect('/urls');
+    res.redirect('/login');
   }
 });
 
@@ -169,7 +153,8 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { 
     shortURL: tempShortURL, 
     longURL: urlDatabase[tempShortURL].longURL, 
-    user: userObj
+    user: userObj,
+    user_id: userId
   };
 
   // checks if the short url is onwed by the user
@@ -190,20 +175,21 @@ app.post('/urls/:shortURL', (req, res) => {
   const urlsOfUser = urlsForUser(userId);
 
   if (urlsOfUser.hasOwnProperty(id)) {
-    urlDatabase[id] = body;
+    urlDatabase[id].longURL = body;
     res.redirect('/urls');
   } else {
     res.send('You do not have permission to edit this content');
   }
+
+  console.log(body);
 });
 
 
 /* GET /u/:shortURL --- redirects users to the long URL from the short URL */
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL].longURL;
-  console.log(shortURL);
-  res.redirect(longURL);
+  const originalURL = urlDatabase[shortURL].longURL;
+  res.redirect(originalURL);
 });
 
 
@@ -252,7 +238,7 @@ app.post('/login', (req, res) => {
       res.redirect('/urls');
     } else {
       res.status(403);
-      res.send('incorrect password');
+      res.send('Incorrect password');
     }
   } else {
     res.status(403);
