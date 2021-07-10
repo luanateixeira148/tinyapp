@@ -4,7 +4,7 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
-var cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session')
 
 app.set("view engine", "ejs");
 
@@ -79,6 +79,11 @@ const urlsForUser = function(id) {
   return output;
 }
 
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+/* GET /  */
 app.get("/", (req, res) => {
   const userId = req.session.user_id;
   if (userId) {
@@ -86,10 +91,6 @@ app.get("/", (req, res) => {
   } else {
     res.redirect('/login');
   }
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
 });
 
 
@@ -106,21 +107,6 @@ app.get("/urls", (req, res) => {
   };
 
   res.render("urls_index", templateVars);
-});
-
-
-/* POST /urls --- handles new URL form submission */
-app.post("/urls", (req, res) => {
-  const userId = req.session.user_id;
-  const newShortUrl = generateRandomString();
-  const newLongUrl = req.body.longURL;
-
-  urlDatabase[newShortUrl] = {
-    longURL: newLongUrl,
-    userID: userId
-  };
-
-  res.redirect(`/urls/${newShortUrl}`);
 });
 
 
@@ -161,9 +147,31 @@ app.get("/urls/:shortURL", (req, res) => {
   if (urlsOfUser.hasOwnProperty(tempShortURL)) {
     res.render("urls_show", templateVars);
   } else {
-    res.send('You do not have permission to access this page');
+    res.send('You do not have permission to access this content.');
   }
+});
 
+
+/* GET /u/:shortURL --- redirects users to the long URL from the short URL */
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const originalURL = urlDatabase[shortURL].longURL;
+  res.redirect(originalURL);
+});
+
+
+/* POST /urls --- handles new URL form submission */
+app.post("/urls", (req, res) => {
+  const userId = req.session.user_id;
+  const newShortUrl = generateRandomString();
+  const newLongUrl = req.body.longURL;
+
+  urlDatabase[newShortUrl] = {
+    longURL: newLongUrl,
+    userID: userId
+  };
+
+  res.redirect(`/urls/${newShortUrl}`);
 });
 
 
@@ -182,14 +190,6 @@ app.post('/urls/:shortURL', (req, res) => {
   }
 
   console.log(body);
-});
-
-
-/* GET /u/:shortURL --- redirects users to the long URL from the short URL */
-app.get("/u/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL;
-  const originalURL = urlDatabase[shortURL].longURL;
-  res.redirect(originalURL);
 });
 
 
@@ -221,7 +221,12 @@ app.get('/login', (req, res) => {
     user: userObj 
   };
 
-  res.render('login', templateVars);
+  if (userId) {
+    res.redirect('/urls')
+  } else {
+    res.render('login', templateVars);
+  }
+
 });
 
 /* POST /login --- handles the login form */
@@ -242,7 +247,7 @@ app.post('/login', (req, res) => {
     }
   } else {
     res.status(403);
-    res.send('user not found');
+    res.send('User not found');
   }
 });
 
@@ -251,7 +256,6 @@ app.post('/login', (req, res) => {
 
 /* POST /logout --- handles the logout request */
 app.post('/logout', (req, res) => {
-  // res.clearCookie('user_id');
   req.session = null;
   res.redirect('/urls');
 });
@@ -261,14 +265,18 @@ app.post('/logout', (req, res) => {
 
 /* GET /register --- renders register page */
 app.get('/register', (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const userObj = users[userId];
 
   const templateVars = { 
     user: userObj 
   };
 
-  res.render('register', templateVars);
+  if (userId) {
+    res.redirect('/urls')
+  } else {
+    res.render('register', templateVars);
+  }
 });
 
 
