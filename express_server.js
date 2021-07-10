@@ -4,7 +4,7 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 
 app.set("view engine", "ejs");
 
@@ -13,18 +13,18 @@ app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
   keys: ['no significance', 'key2', 'more stuff']
-}))
+}));
 
 const { getUserByEmail } = require('./helpers');
 
 const urlDatabase = {
   b6UTxQ: {
-      longURL: "https://www.tsn.ca",
-      userID: "user2RandomID"
+    longURL: "https://www.tsn.ca",
+    userID: "user2RandomID"
   },
   i3BoGr: {
-      longURL: "https://www.google.ca",
-      userID: "userRandomID"
+    longURL: "https://www.google.ca",
+    userID: "userRandomID"
   },
   i36oPS: {
     longURL: "https://www.something.com",
@@ -36,29 +36,28 @@ const urlDatabase = {
   }
 };
 
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 };
 
 // generates random string to be used as the shortURL and as the user's ID
-const generateRandomString = function(){
-  return Math.random().toString(20).substr(2, 6)
-}
+const generateRandomString = function() {
+  return Math.random().toString(20).substr(2, 6);
+};
 
 // function to check if user is already registered
 const checkExistentEmail = function(inputEmail) {
   let output;
   for (let user in users) {
-    console.log('user:', user, 'user.email:', users[user].email);
     if (users[user].email === inputEmail) {
       output = true;
     } else {
@@ -77,7 +76,7 @@ const urlsForUser = function(id) {
     }
   }
   return output;
-}
+};
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -100,9 +99,9 @@ app.get("/urls", (req, res) => {
   const userObj = users[userId];
   const urlsOfUser = urlsForUser(userId);
 
-  const templateVars = { 
+  const templateVars = {
     user_id: userId,
-    urls: urlsOfUser, 
+    urls: urlsOfUser,
     user: userObj
   };
 
@@ -111,14 +110,14 @@ app.get("/urls", (req, res) => {
 
 
 /* GET /urls/new --- renders the new URL page */
-/* IMPORTANT --- 
+/* IMPORTANT ---
 --- this function needs to ALWAYS be placed before the /urls/:shortURL */
 app.get("/urls/new", (req, res) => {
   const userId = req.session.user_id;
   const userObj = users[userId];
 
-  const templateVars = { 
-    user: userObj 
+  const templateVars = {
+    user: userObj
   };
 
   if (userId) {
@@ -136,9 +135,9 @@ app.get("/urls/:shortURL", (req, res) => {
   const userObj = users[userId];
   const urlsOfUser = urlsForUser(userId);
 
-  const templateVars = { 
-    shortURL: tempShortURL, 
-    longURL: urlDatabase[tempShortURL].longURL, 
+  const templateVars = {
+    shortURL: tempShortURL,
+    longURL: urlDatabase[tempShortURL].longURL,
     user: userObj,
     user_id: userId
   };
@@ -188,8 +187,6 @@ app.post('/urls/:shortURL', (req, res) => {
   } else {
     res.send('You do not have permission to edit this content');
   }
-
-  console.log(body);
 });
 
 
@@ -199,13 +196,13 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   const userId = req.session.user_id;
   const urlsOfUser = urlsForUser(userId);
 
-    // checks if the short url is onwed by the user
-    if (urlsOfUser.hasOwnProperty(shortURL)) {
-      delete urlDatabase[shortURL];
-      res.redirect('/urls');
-    } else {
-      res.send('You do not have permission to delete this content');
-    }
+  // checks if the short url is onwed by the user
+  if (urlsOfUser.hasOwnProperty(shortURL)) {
+    delete urlDatabase[shortURL];
+    res.redirect('/urls');
+  } else {
+    res.send('You do not have permission to delete this content');
+  }
 
 });
 
@@ -217,12 +214,12 @@ app.get('/login', (req, res) => {
   const userId = req.session.user_id;
   const userObj = users[userId];
 
-  const templateVars = {  
-    user: userObj 
+  const templateVars = {
+    user: userObj
   };
 
   if (userId) {
-    res.redirect('/urls')
+    res.redirect('/urls');
   } else {
     res.render('login', templateVars);
   }
@@ -238,7 +235,7 @@ app.post('/login', (req, res) => {
   //check if there a user with the email
   if (user) {
     // check if password match
-    if (bcrypt.compareSync(password, users[user].password )) {
+    if (bcrypt.compareSync(password, users[user].password)) {
       req.session.user_id = user;
       res.redirect('/urls');
     } else {
@@ -268,12 +265,12 @@ app.get('/register', (req, res) => {
   const userId = req.session.user_id;
   const userObj = users[userId];
 
-  const templateVars = { 
-    user: userObj 
+  const templateVars = {
+    user: userObj
   };
 
   if (userId) {
-    res.redirect('/urls')
+    res.redirect('/urls');
   } else {
     res.render('register', templateVars);
   }
@@ -303,7 +300,6 @@ app.post('/register', (req, res) => {
     
     req.session.user_id = newUserID;
     res.redirect('/urls');
-    console.log('pass info:', users);
   }
 });
 
